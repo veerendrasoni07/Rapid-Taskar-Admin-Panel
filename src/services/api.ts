@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get base URL from environment or fallback
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const baseURL = 'https://rapid-tasker-production.up.railway.app/api/v1';
 
 export const api = axios.create({
   baseURL,
