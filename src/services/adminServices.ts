@@ -43,9 +43,6 @@ export const adminService = {
   // Payments
   getPayments: (params?: any) => api.get('/admin/payments', { params }).then(res => res.data),
 
-  // Commissions
-  getCommissions: (params?: any) => api.get('/admin/commissions', { params }).then(res => res.data),
-
   // Reviews
   getReviews: (params?: any) => api.get('/admin/reviews', { params }).then(res => res.data),
 

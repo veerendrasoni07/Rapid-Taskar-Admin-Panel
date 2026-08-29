@@ -8,7 +8,6 @@ import {
   DollarSign, 
   Calendar, 
   CreditCard, 
-  Percent, 
   MessageSquare, 
   AlertTriangle,
   BarChart
@@ -25,7 +24,6 @@ const navigation = [
   { name: 'Pricing', href: '/pricing', icon: DollarSign },
   { name: 'Bookings', href: '/bookings', icon: Calendar },
   { name: 'Payments', href: '/payments', icon: CreditCard },
-  { name: 'Commissions', href: '/commissions', icon: Percent },
   { name: 'Reviews', href: '/reviews', icon: MessageSquare },
   { name: 'Complaints', href: '/complaints', icon: AlertTriangle },
   { name: 'Reports', href: '/reports', icon: BarChart },

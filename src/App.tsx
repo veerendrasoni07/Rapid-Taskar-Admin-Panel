@@ -13,7 +13,6 @@ import Categories from './pages/Categories';
 import Pricing from './pages/Pricing';
 import Bookings from './pages/Bookings';
 import Payments from './pages/Payments';
-import Commissions from './pages/Commissions';
 import Reviews from './pages/Reviews';
 import Complaints from './pages/Complaints';
 import Reports from './pages/Reports';
@@ -63,7 +62,6 @@ function App() {
           <Route path="/pricing" element={<RequireAuth><Layout><Pricing /></Layout></RequireAuth>} />
           <Route path="/bookings" element={<RequireAuth><Layout><Bookings /></Layout></RequireAuth>} />
           <Route path="/payments" element={<RequireAuth><Layout><Payments /></Layout></RequireAuth>} />
-          <Route path="/commissions" element={<RequireAuth><Layout><Commissions /></Layout></RequireAuth>} />
           <Route path="/reviews" element={<RequireAuth><Layout><Reviews /></Layout></RequireAuth>} />
           <Route path="/complaints" element={<RequireAuth><Layout><Complaints /></Layout></RequireAuth>} />
           <Route path="/reports" element={<RequireAuth><Layout><Reports /></Layout></RequireAuth>} />
