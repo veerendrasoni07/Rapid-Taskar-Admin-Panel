@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -10,13 +10,17 @@ import {
   CreditCard, 
   MessageSquare, 
   AlertTriangle,
-  BarChart
+  BarChart,
+  Bell,
+  LogOut
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useAuthStore } from '../../store/authStore';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Professionals', href: '/professionals', icon: Briefcase },
   { name: 'Services', href: '/services', icon: List },
@@ -30,6 +34,14 @@ const navigation = [
 ];
 
 export default function Sidebar() {
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-surface">
       <div className="flex h-16 items-center px-6 border-b border-border">
@@ -57,6 +69,15 @@ export default function Sidebar() {
             </NavLink>
           ))}
         </nav>
+      </div>
+      <div className="border-t border-border p-3">
+        <button
+          onClick={handleLogout}
+          className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-error hover:bg-error/10 transition-colors"
+        >
+          <LogOut className="mr-3 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+          Logout
+        </button>
       </div>
     </div>
   );
