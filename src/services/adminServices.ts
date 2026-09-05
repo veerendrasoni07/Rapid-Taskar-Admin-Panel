@@ -50,4 +50,10 @@ export const adminService = {
   getOverviewReport: (params?: any) => api.get('/admin/reports/overview', { params }).then(res => res.data),
   getRevenueReport: (params?: any) => api.get('/admin/reports/revenue', { params }).then(res => res.data),
   getTopServicesReport: (params?: any) => api.get('/admin/reports/top-services', { params }).then(res => res.data),
+
+  // Notifications
+  sendNotification: (data: { title: string; body: string; targetRole?: string; userId?: string; type?: string }) => 
+    api.post('/admin/notifications/send', data).then(res => res.data),
+  getNotificationsHistory: (params?: any) => 
+    api.get('/admin/notifications', { params }).then(res => res.data),
 };
