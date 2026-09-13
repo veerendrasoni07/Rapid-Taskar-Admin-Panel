@@ -5,6 +5,8 @@ import DataTable, { Column } from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
 import Modal from '../components/common/Modal';
 import ConfirmModal from '../components/common/ConfirmModal';
+import ImageUpload from '../components/common/ImageUpload';
+import { resolveImageUrl } from '../utils/image';
 import { Plus } from 'lucide-react';
 
 export default function Services() {
@@ -29,12 +31,12 @@ export default function Services() {
     queryFn: () => adminService.getServices({ page })
   });
 
-  const { data: categoriesData } = useQuery({
+  const { data: catData } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => adminService.getAllCategories(),
+    queryFn: () => adminService.getAllCategories()
   });
 
-  const categories = categoriesData?.categories || categoriesData?.data?.categories || [];
+  const categories = catData?.categories || catData?.data?.categories || [];
 
   const createMutation = useMutation({
     mutationFn: (newService: any) => adminService.createService(newService),
@@ -48,7 +50,7 @@ export default function Services() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (updatedService: any) => adminService.updateService(editingId!, updatedService),
+    mutationFn: (data: any) => adminService.updateService(editingId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       closeModal();
@@ -59,28 +61,37 @@ export default function Services() {
   });
   
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string, status: boolean }) => adminService.updateServiceStatus(id, status ? 'true' : 'false'),
+    mutationFn: ({ id, status }: { id: string, status: boolean }) => 
+      adminService.updateServiceStatus(id, status ? 'true' : 'false'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
+      setConfirmStatusItem(null);
     }
   });
 
   const openCreateModal = () => {
     setEditingId(null);
-    setFormData({ name: '', description: '', category: '', price: '', duration: '', image: '' });
+    setFormData({ 
+      name: '', 
+      description: '', 
+      category: '', 
+      price: '', 
+      duration: '', 
+      image: '' 
+    });
     setError('');
     setIsModalOpen(true);
   };
 
   const openEditModal = (service: any) => {
     setEditingId(service._id);
-    setFormData({ 
-      name: service.name || '', 
-      description: service.description || '', 
-      category: service.category || '', 
-      price: service.price?.toString() || '', 
-      duration: service.duration?.toString() || '', 
-      image: service.image || '' 
+    setFormData({
+      name: service.name || '',
+      description: service.description || '',
+      category: typeof service.category === 'object' ? service.category?._id : (service.category || ''),
+      price: service.price !== undefined ? service.price.toString() : '',
+      duration: service.duration !== undefined ? service.duration.toString() : '',
+      image: service.image || ''
     });
     setError('');
     setIsModalOpen(true);
@@ -89,13 +100,20 @@ export default function Services() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setFormData({ name: '', description: '', category: '', price: '', duration: '', image: '' });
+    setFormData({ 
+      name: '', 
+      description: '', 
+      category: '', 
+      price: '', 
+      duration: '', 
+      image: '' 
+    });
     setError('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.category || !formData.price || !formData.duration) {
+    if (!formData.name.trim() || !formData.category || !formData.price || !formData.duration) {
       setError('Please fill in all required fields');
       return;
     }
@@ -114,6 +132,25 @@ export default function Services() {
   };
 
   const columns: Column<any>[] = [
+    {
+      header: 'Image',
+      cell: (item) => (
+        item.image ? (
+          <img
+            src={resolveImageUrl(item.image)}
+            alt={item.name}
+            className="w-10 h-10 rounded-lg object-cover bg-background border border-border shadow-xs"
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-lg bg-surface border border-border flex items-center justify-center text-secondary text-xs font-medium">
+            No img
+          </div>
+        )
+      )
+    },
     { header: 'Service Name', accessorKey: 'name' },
     { 
       header: 'Category', 
@@ -246,16 +283,13 @@ export default function Services() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Image URL</label>
-            <input 
-              type="url"
-              value={formData.image}
-              onChange={e => setFormData({...formData, image: e.target.value})}
-              className="w-full rounded-md border-0 py-2 px-3 text-text ring-1 ring-inset ring-border focus:ring-2 focus:ring-primary sm:text-sm"
-              placeholder="https://example.com/service.png"
-            />
-          </div>
+          <ImageUpload
+            value={formData.image}
+            onChange={(url) => setFormData({ ...formData, image: url })}
+            folder="services"
+            label="Service Image"
+            helperText="Upload service picture or icon (PNG, JPG, WEBP or SVG up to 5MB)"
+          />
 
           <div className="pt-4 flex justify-end gap-3">
             <button 

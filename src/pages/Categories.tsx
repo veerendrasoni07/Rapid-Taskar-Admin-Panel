@@ -5,6 +5,8 @@ import DataTable, { Column } from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
 import Modal from '../components/common/Modal';
 import ConfirmModal from '../components/common/ConfirmModal';
+import ImageUpload from '../components/common/ImageUpload';
+import { resolveImageUrl } from '../utils/image';
 import { Plus } from 'lucide-react';
 
 export default function Categories() {
@@ -89,9 +91,25 @@ export default function Categories() {
   };
 
   const columns: Column<any>[] = [
-    { header: 'Icon', cell: (item) => (
-      item.image ? <img src={item.image} alt={item.name} className="w-8 h-8 rounded-full object-cover bg-background" /> : <div className="w-8 h-8 rounded-full bg-background" />
-    )},
+    { 
+      header: 'Icon', 
+      cell: (item) => (
+        item.image ? (
+          <img 
+            src={resolveImageUrl(item.image)} 
+            alt={item.name} 
+            className="w-9 h-9 rounded-xl object-cover bg-background border border-border shadow-xs" 
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs border border-primary/20">
+            {item.name ? item.name.charAt(0).toUpperCase() : 'C'}
+          </div>
+        )
+      )
+    },
     { header: 'Category Name', accessorKey: 'name' },
     { header: 'Description', cell: (item) => item.description || 'N/A' },
     { 
@@ -174,16 +192,13 @@ export default function Categories() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-text mb-1">Image URL</label>
-            <input 
-              type="url"
-              value={formData.image}
-              onChange={e => setFormData({...formData, image: e.target.value})}
-              className="w-full rounded-md border-0 py-2 px-3 text-text ring-1 ring-inset ring-border focus:ring-2 focus:ring-primary sm:text-sm"
-              placeholder="https://example.com/icon.png"
-            />
-          </div>
+          <ImageUpload
+            value={formData.image}
+            onChange={(url) => setFormData({ ...formData, image: url })}
+            folder="categories"
+            label="Category Icon / Image"
+            helperText="Upload custom category icon (PNG, SVG, JPG or WEBP)"
+          />
 
           <div className="pt-4 flex justify-end gap-3">
             <button 
