@@ -56,4 +56,18 @@ export const adminService = {
     api.post('/admin/notifications/send', data).then(res => res.data),
   getNotificationsHistory: (params?: any) => 
     api.get('/admin/notifications', { params }).then(res => res.data),
+
+  // File Upload
+  uploadImage: async (file: File, folder: string = 'general') => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('folder', folder);
+    const res = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
 };
+
