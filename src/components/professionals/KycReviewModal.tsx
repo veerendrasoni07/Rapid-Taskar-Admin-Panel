@@ -4,7 +4,8 @@ import { adminService } from '../../services/adminServices';
 import Modal from '../common/Modal';
 import StatusBadge from '../common/StatusBadge';
 import PromptModal from '../common/PromptModal';
-import { CheckCircle2, XCircle, ExternalLink, FileText, ShieldAlert, Image as ImageIcon } from 'lucide-react';
+import { CheckCircle2, XCircle, ExternalLink, FileText, ShieldAlert } from 'lucide-react';
+import { resolveImageUrl } from '../../utils/image';
 
 interface KycReviewModalProps {
   isOpen: boolean;
@@ -57,7 +58,15 @@ export default function KycReviewModal({ isOpen, onClose, professionalId }: KycR
   };
 
   const isImage = (url: string) => {
-    return url.match(/\.(jpeg|jpg|gif|png|webp)/i) != null || url.includes('firebasestorage') || url.includes('alt=media');
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].toLowerCase();
+    if (cleanUrl.endsWith('.pdf')) return false;
+    if (cleanUrl.match(/\.(jpeg|jpg|gif|png|webp|svg)$/)) return true;
+    if (url.includes('cloudinary') && url.includes('/image/upload/') && !cleanUrl.endsWith('.pdf')) return true;
+    if (url.includes('firebasestorage') || url.includes('alt=media')) {
+      return !cleanUrl.endsWith('.pdf');
+    }
+    return false;
   };
 
   return (
@@ -116,63 +125,70 @@ export default function KycReviewModal({ isOpen, onClose, professionalId }: KycR
                   <div className="p-8 text-center border-2 border-dashed border-border rounded-lg">
                     <ShieldAlert className="w-10 h-10 text-warning mx-auto mb-2" />
                     <p className="text-sm font-medium text-text">No documents uploaded yet</p>
-                    <p className="text-xs text-secondary mt-1">The partner has not submitted any KYC files to Firebase Storage.</p>
+                    <p className="text-xs text-secondary mt-1">The partner has not submitted any KYC files.</p>
                   </div>
                 ) : (
-                  documents.map((doc: any) => (
-                    <div key={doc._id} className="border border-border rounded-lg p-4 bg-surface space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-5 h-5 text-primary" />
-                          <span className="font-bold text-text text-base">
-                            {doc.documentType.replace('_', ' ')}
-                          </span>
-                          <StatusBadge status={doc.status} />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={doc.documentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-primary font-semibold hover:underline"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" /> View / Download Document
-                          </a>
-                        </div>
-                      </div>
-
-                      {doc.rejectionReason && (
-                        <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 p-2.5 rounded-md text-xs font-medium border border-rose-200 dark:border-rose-900/30">
-                          Rejection Reason: {doc.rejectionReason}
-                        </div>
-                      )}
-
-                      {/* File Preview */}
-                      <div className="relative group bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border border-border max-h-64 flex items-center justify-center p-2">
-                        {isImage(doc.documentUrl) ? (
-                          <img
-                            src={doc.documentUrl}
-                            alt={doc.documentType}
-                            className="max-h-56 object-contain rounded cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setPreviewImage(doc.documentUrl)}
-                          />
-                        ) : (
-                          <div className="p-6 text-center">
-                            <ImageIcon className="w-12 h-12 text-secondary mx-auto mb-2" />
-                            <p className="text-xs text-secondary">Document Preview Available</p>
+                  documents.map((doc: any) => {
+                    const docUrl = resolveImageUrl(doc.documentUrl);
+                    return (
+                      <div key={doc._id} className="border border-border rounded-lg p-4 bg-surface space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-primary" />
+                            <span className="font-bold text-text text-base">
+                              {doc.documentType.replace('_', ' ')}
+                            </span>
+                            <StatusBadge status={doc.status} />
+                          </div>
+                          <div className="flex items-center gap-2">
                             <a
-                              href={doc.documentUrl}
+                              href={docUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-block px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90"
+                              className="inline-flex items-center gap-1 text-xs text-primary font-semibold hover:underline"
                             >
-                              Open Document
+                              <ExternalLink className="w-3.5 h-3.5" /> View / Download Document
                             </a>
                           </div>
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Document Actions */}
+                        {doc.rejectionReason && (
+                          <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 p-2.5 rounded-md text-xs font-medium border border-rose-200 dark:border-rose-900/30">
+                            Rejection Reason: {doc.rejectionReason}
+                          </div>
+                        )}
+
+                        {/* File Preview */}
+                        <div className="relative group bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border border-border max-h-64 flex items-center justify-center p-2">
+                          {isImage(docUrl) ? (
+                            <img
+                              src={docUrl}
+                              alt={doc.documentType}
+                              className="max-h-56 object-contain rounded cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => setPreviewImage(docUrl)}
+                            />
+                          ) : (
+                            <div className="p-6 text-center flex flex-col items-center">
+                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                                <FileText className="w-6 h-6 text-primary" />
+                              </div>
+                              <p className="text-sm font-semibold text-text">PDF / Verification Document</p>
+                              <p className="text-xs text-secondary mt-0.5 max-w-xs">
+                                Document uploaded to Cloudinary. Click below to view or download.
+                              </p>
+                              <a
+                                href={docUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" /> Open Document
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Document Actions */}
                       <div className="flex justify-end gap-2 pt-2">
                         <button
                           onClick={() => handleApprove(doc._id)}
@@ -190,8 +206,9 @@ export default function KycReviewModal({ isOpen, onClose, professionalId }: KycR
                         </button>
                       </div>
                     </div>
-                  ))
-                )}
+                  );
+                })
+              )}
               </div>
             </>
           )}
