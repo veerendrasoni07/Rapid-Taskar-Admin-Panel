@@ -36,7 +36,7 @@ export default function Dashboard() {
     },
     { 
       header: 'Amount', 
-      cell: (item) => `$${item.price?.toFixed(2) || '0.00'}` 
+      cell: (item) => `₹${item.price?.toFixed(2) || '0.00'}` 
     },
     { 
       header: 'Status', 

@@ -161,7 +161,7 @@ export default function Services() {
     },
     { 
       header: 'Base Price', 
-      cell: (item) => `$${item.price?.toFixed(2) || '0.00'}` 
+      cell: (item) => `₹${item.price?.toFixed(2) || '0.00'}` 
     },
     { header: 'Duration', cell: (item) => `${item.duration} mins` },
     { 
@@ -246,7 +246,7 @@ export default function Services() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-text mb-1">Base Price ($) *</label>
+              <label className="block text-sm font-medium text-text mb-1">Base Price (₹) *</label>
               <input 
                 type="number"
                 min="0"
@@ -255,7 +255,7 @@ export default function Services() {
                 value={formData.price}
                 onChange={e => setFormData({...formData, price: e.target.value})}
                 className="w-full rounded-md border-0 py-2 px-3 text-text ring-1 ring-inset ring-border focus:ring-2 focus:ring-primary sm:text-sm"
-                placeholder="49.99"
+                placeholder="499.00"
               />
             </div>
             <div>

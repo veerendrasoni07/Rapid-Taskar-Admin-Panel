@@ -39,10 +39,11 @@ export default function Reports() {
                 <LineChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E6E7EB" />
                   <XAxis dataKey="_id" axisLine={false} tickLine={false} tick={{ fill: '#6B6B76' }} dy={10} />
-                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#6B6B76' }} tickFormatter={(value) => `$${value}`} />
+                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#6B6B76' }} tickFormatter={(value) => `₹${value}`} />
                   <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#6B6B76' }} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E6E7EB' }}
+                    formatter={(value: any, name: any) => name === 'Revenue' ? [`₹${value}`, name] : [value, name]}
                   />
                   <Legend />
                   <Line yAxisId="left" type="monotone" name="Revenue" dataKey="revenue" stroke="#5B4BDB" strokeWidth={3} dot={{ r: 4, fill: '#5B4BDB' }} activeDot={{ r: 6 }} />

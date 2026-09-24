@@ -24,7 +24,7 @@ export default function Payments() {
     },
     { 
       header: 'Amount', 
-      cell: (item) => `$${item.amount?.toFixed(2) || '0.00'}` 
+      cell: (item) => `₹${item.amount?.toFixed(2) || '0.00'}` 
     },
     { header: 'Method', accessorKey: 'paymentMethod' },
     { 

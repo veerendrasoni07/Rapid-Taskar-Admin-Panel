@@ -34,7 +34,7 @@ export default function Pricing() {
     },
     { 
       header: 'Base Price', 
-      cell: (item) => <span className="font-semibold text-text">${item.price?.toFixed(2) || '0.00'}</span>
+      cell: (item) => <span className="font-semibold text-text">₹{item.price?.toFixed(2) || '0.00'}</span>
     },
     { header: 'Duration', cell: (item) => `${item.duration} mins` },
     { 
@@ -86,7 +86,7 @@ export default function Pricing() {
           }
         }}
         title="Update Base Price"
-        message={`Enter new price for ${promptItem?.name}:`}
+        message={`Enter new price for ${promptItem?.name} (₹):`}
         defaultValue={promptItem?.price?.toString()}
         inputType="number"
         submitText="Update Price"
