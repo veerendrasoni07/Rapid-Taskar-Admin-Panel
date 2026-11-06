@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   BarChart,
   Bell,
+  Sparkles,
   LogOut
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -20,6 +21,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'App Banner', href: '/banner', icon: Sparkles },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Professionals', href: '/professionals', icon: Briefcase },

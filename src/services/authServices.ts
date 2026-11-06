@@ -14,6 +14,13 @@ export const authService = {
       otp,
       role: 'ADMIN'
     }).then(res => res.data),
+
+  verifyFirebaseOtp: (idToken: string, phone?: string) =>
+    api.post('/auth/verify-firebase-otp', {
+      idToken,
+      phone,
+      role: 'ADMIN'
+    }).then(res => res.data),
     
   getCurrentUser: () => api.get('/auth/me').then(res => res.data)
 };

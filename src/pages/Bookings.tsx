@@ -4,19 +4,21 @@ import { adminService } from '../services/adminServices';
 import DataTable, { Column } from '../components/common/DataTable';
 import StatusBadge from '../components/common/StatusBadge';
 import PromptModal from '../components/common/PromptModal';
-import { Search } from 'lucide-react';
+import AssignProfessionalModal from '../components/bookings/AssignProfessionalModal';
+import { Search, MapPin, Copy, Check } from 'lucide-react';
 
 export default function Bookings() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [page] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
-  const [assignPromptItem, setAssignPromptItem] = useState<any>(null);
+  const [assignModalBooking, setAssignModalBooking] = useState<any>(null);
   const [cancelPromptItem, setCancelPromptItem] = useState<any>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['bookings', page, searchTerm, statusFilter],
-    queryFn: () => adminService.getBookings({ page, status: statusFilter })
+    queryFn: () => adminService.getBookings({ page, status: statusFilter, search: searchTerm })
   });
 
   const cancelMutation = useMutation({
@@ -26,19 +28,63 @@ export default function Bookings() {
     }
   });
 
+  const handleCopy = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(id);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const columns: Column<any>[] = [
-    { header: 'Booking ID', accessorKey: '_id' },
+    { 
+      header: 'Booking ID', 
+      cell: (item) => {
+        const idToDisplay = item.bookingId || item._id;
+        return (
+          <div className="flex items-center gap-1.5 font-mono text-xs">
+            <span className="font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+              {idToDisplay}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => handleCopy(idToDisplay, e)}
+              className="text-secondary hover:text-text p-0.5"
+              title="Copy Booking ID"
+            >
+              {copiedId === idToDisplay ? (
+                <Check className="w-3 h-3 text-emerald-600" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
+            </button>
+          </div>
+        );
+      }
+    },
     { 
       header: 'Customer', 
       cell: (item) => item.customer ? item.customer.name || `${item.customer.firstName || ''} ${item.customer.lastName || ''}`.trim() : 'Unknown' 
     },
     { 
       header: 'Professional', 
-      cell: (item) => item.professional ? item.professional.name || `${item.professional.firstName || ''} ${item.professional.lastName || ''}`.trim() : 'Unassigned' 
+      cell: (item) => item.professional ? item.professional.name || `${item.professional.firstName || ''} ${item.professional.lastName || ''}`.trim() : <span className="text-secondary italic">Unassigned</span>
     },
     { 
       header: 'Service', 
       cell: (item) => item.service?.name || 'Unknown' 
+    },
+    { 
+      header: 'Pincode', 
+      cell: (item) => (
+        item.address?.pincode ? (
+          <span className="inline-flex items-center gap-1 font-mono text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+            <MapPin className="w-3 h-3 text-emerald-600" />
+            {item.address.pincode}
+          </span>
+        ) : (
+          <span className="text-secondary text-xs">N/A</span>
+        )
+      )
     },
     { 
       header: 'Date & Time', 
@@ -57,14 +103,14 @@ export default function Bookings() {
       cell: (item) => (
         <div className="flex gap-3">
           <button 
-            className="text-primary hover:text-primary/80 font-medium text-sm"
-            onClick={() => setAssignPromptItem(item)}
+            className="text-primary hover:text-primary/80 font-medium text-sm disabled:opacity-40"
+            onClick={() => setAssignModalBooking(item)}
             disabled={item.status !== 'PENDING' && item.status !== 'CONFIRMED'}
           >
             Assign
           </button>
           <button 
-            className="text-error hover:text-error/80 font-medium text-sm disabled:opacity-50"
+            className="text-error hover:text-error/80 font-medium text-sm disabled:opacity-40"
             disabled={item.status === 'CANCELLED' || item.status === 'COMPLETED'}
             onClick={() => setCancelPromptItem(item)}
           >
@@ -74,6 +120,22 @@ export default function Bookings() {
       )
     }
   ];
+
+  // Client-side search filtering fallback for instant response
+  const rawBookings = data?.data?.bookings || data?.bookings || [];
+  const filteredBookings = searchTerm.trim()
+    ? rawBookings.filter((b: any) => {
+        const query = searchTerm.toLowerCase();
+        return (
+          b.bookingId?.toLowerCase().includes(query) ||
+          b._id?.toLowerCase().includes(query) ||
+          b.customer?.name?.toLowerCase().includes(query) ||
+          b.customer?.phone?.includes(query) ||
+          b.address?.pincode?.includes(query) ||
+          b.service?.name?.toLowerCase().includes(query)
+        );
+      })
+    : rawBookings;
 
   return (
     <div className="space-y-6">
@@ -89,7 +151,7 @@ export default function Bookings() {
           <input
             type="text"
             className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-text ring-1 ring-inset ring-border focus:ring-2 focus:ring-primary sm:text-sm"
-            placeholder="Search by ID or customer..."
+            placeholder="Search by Booking ID, customer, or pincode..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -112,25 +174,17 @@ export default function Bookings() {
 
       <DataTable 
         columns={columns}
-        data={data?.data?.bookings || []}
+        data={filteredBookings}
         isLoading={isLoading}
         keyExtractor={(item) => item._id || Math.random().toString()}
       />
 
-      <PromptModal
-        isOpen={!!assignPromptItem}
-        onClose={() => setAssignPromptItem(null)}
-        onSubmit={(val) => {
-          if (assignPromptItem) {
-            adminService.assignBooking(assignPromptItem._id, val)
-              .then(() => queryClient.invalidateQueries({ queryKey: ['bookings'] }))
-              .catch(e => alert(e.response?.data?.message || 'Failed to assign professional'));
-          }
-        }}
-        title="Assign Professional"
-        message="Enter the ID of the professional you want to assign to this booking:"
-        placeholder="Professional ID"
-        submitText="Assign"
+      {/* Advanced Professional Assignment Modal */}
+      <AssignProfessionalModal
+        isOpen={!!assignModalBooking}
+        onClose={() => setAssignModalBooking(null)}
+        booking={assignModalBooking}
+        onAssignSuccess={() => queryClient.invalidateQueries({ queryKey: ['bookings'] })}
       />
 
       <PromptModal
@@ -149,3 +203,4 @@ export default function Bookings() {
     </div>
   );
 }
+

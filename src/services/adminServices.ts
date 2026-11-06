@@ -35,10 +35,11 @@ export const adminService = {
   assignBooking: (id: string, professionalId: string) => api.patch(`/admin/bookings/${id}/assign`, { professionalId }).then(res => res.data),
   cancelBooking: (id: string, reason: string) => api.patch(`/admin/bookings/${id}/cancel`, { reason }).then(res => res.data),
 
-  // Complaints
+  // Complaints / Support Management
   getComplaints: (params?: any) => api.get('/admin/complaints', { params }).then(res => res.data),
   getComplaintById: (id: string) => api.get(`/admin/complaints/${id}`).then(res => res.data),
   updateComplaint: (id: string, data: any) => api.patch(`/admin/complaints/${id}`, data).then(res => res.data),
+  sendComplaintReply: (id: string, message: string) => api.post(`/admin/complaints/${id}/messages`, { message }).then(res => res.data),
 
   // Payments
   getPayments: (params?: any) => api.get('/admin/payments', { params }).then(res => res.data),
@@ -69,5 +70,13 @@ export const adminService = {
     });
     return res.data;
   },
+
+  // Hero Banner Settings
+  getBanner: () => api.get('/banner').then(res => res.data),
+  updateBanner: (data: any) => api.put('/banner/admin', data).then(res => res.data),
+
+  // First-Booking Offer Management
+  getFirstBookingOffer: () => api.get('/admin/offers/first-booking').then(res => res.data),
+  updateFirstBookingOffer: (data: any) => api.put('/admin/offers/first-booking', data).then(res => res.data),
 };
 

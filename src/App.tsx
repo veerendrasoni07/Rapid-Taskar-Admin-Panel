@@ -17,6 +17,7 @@ import Reviews from './pages/Reviews';
 import Complaints from './pages/Complaints';
 import Reports from './pages/Reports';
 import Notifications from './pages/Notifications';
+import AppBanner from './pages/AppBanner';
 import Login from './pages/Login';
 import { useEffect } from 'react';
 
@@ -67,6 +68,7 @@ function App() {
           <Route path="/complaints" element={<RequireAuth><Layout><Complaints /></Layout></RequireAuth>} />
           <Route path="/reports" element={<RequireAuth><Layout><Reports /></Layout></RequireAuth>} />
           <Route path="/notifications" element={<RequireAuth><Layout><Notifications /></Layout></RequireAuth>} />
+          <Route path="/banner" element={<RequireAuth><Layout><AppBanner /></Layout></RequireAuth>} />
         </Routes>
       </Router>
     </QueryClientProvider>
