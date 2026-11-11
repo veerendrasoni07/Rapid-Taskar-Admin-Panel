@@ -66,7 +66,7 @@ export default function Professionals() {
           </button>
           <select
             className="bg-transparent text-primary font-medium text-sm border-none cursor-pointer focus:ring-0 p-0"
-            value={item.status || 'ACTIVE'}
+            value={item.status || 'PENDING'}
             onChange={(e) => {
               const newStatus = e.target.value;
               if (newStatus !== item.status) {
@@ -74,6 +74,7 @@ export default function Professionals() {
               }
             }}
           >
+            {item.status === 'PENDING' && <option value="PENDING">Pending</option>}
             <option value="ACTIVE">Active</option>
             <option value="SUSPENDED">Suspend</option>
             <option value="REJECTED">Reject</option>

@@ -1,16 +1,14 @@
 import { api } from './api';
 
 export const authService = {
-  sendOtp: (phoneOrEmail: string) => 
+  sendOtp: (phone: string) => 
     api.post('/auth/send-otp', { 
-      // Based on input, send either phone or email. 
-      // Simple heuristic: if it contains '@', treat as email
-      ...(phoneOrEmail.includes('@') ? { email: phoneOrEmail } : { phone: phoneOrEmail })
+      phone: phone.trim()
     }).then(res => res.data),
 
-  verifyOtp: (phoneOrEmail: string, otp: string) => 
+  verifyOtp: (phone: string, otp: string) => 
     api.post('/auth/verify-otp', {
-      ...(phoneOrEmail.includes('@') ? { email: phoneOrEmail } : { phone: phoneOrEmail }),
+      phone: phone.trim(),
       otp,
       role: 'ADMIN'
     }).then(res => res.data),

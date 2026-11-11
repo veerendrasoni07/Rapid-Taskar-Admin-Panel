@@ -75,8 +75,29 @@ export const adminService = {
   getBanner: () => api.get('/banner').then(res => res.data),
   updateBanner: (data: any) => api.put('/banner/admin', data).then(res => res.data),
 
+  // Promotional Campaigns Management
+  getCampaigns: () => api.get('/banner/admin/all').then(res => res.data),
+  getCampaignById: (id: string) => api.get(`/banner/admin/${id}`).then(res => res.data),
+  createCampaign: (data: any) => api.post('/banner/admin', data).then(res => res.data),
+  updateCampaign: (id: string, data: any) => api.put(`/banner/admin/${id}`, data).then(res => res.data),
+  deleteCampaign: (id: string) => api.delete(`/banner/admin/${id}`).then(res => res.data),
+  toggleCampaignStatus: (id: string) => api.patch(`/banner/admin/${id}/toggle`).then(res => res.data),
+  getAllOffers: () => api.get('/offer/admin/all').then(res => res.data),
+
   // First-Booking Offer Management
   getFirstBookingOffer: () => api.get('/admin/offers/first-booking').then(res => res.data),
   updateFirstBookingOffer: (data: any) => api.put('/admin/offers/first-booking', data).then(res => res.data),
+
+  // Professional Wallets, Commission & Payouts
+  getPayoutStats: () => api.get('/wallet/admin/stats').then(res => res.data),
+  getWithdrawals: (params?: any) => api.get('/wallet/admin/withdrawals', { params }).then(res => res.data),
+  approveWithdrawal: (id: string, data: { transactionReference?: string; notes?: string }) => 
+    api.post(`/wallet/admin/withdrawals/${id}/approve`, data).then(res => res.data),
+  rejectWithdrawal: (id: string, data: { rejectionReason?: string; notes?: string }) => 
+    api.post(`/wallet/admin/withdrawals/${id}/reject`, data).then(res => res.data),
+  getWallets: (params?: any) => api.get('/wallet/admin/wallets', { params }).then(res => res.data),
+  getWalletDetails: (professionalId: string) => api.get(`/wallet/admin/wallets/${professionalId}`).then(res => res.data),
+  adjustWalletBalance: (professionalId: string, data: { type: 'CREDIT' | 'DEBIT'; amount: number; reason: string }) =>
+    api.post(`/wallet/admin/wallets/${professionalId}/adjust`, data).then(res => res.data),
 };
 

@@ -20,6 +20,19 @@ export default function Login() {
 
   const setAuth = useAuthStore(state => state.setAuth);
   const navigate = useNavigate();
+  const isDev = import.meta.env.DEV || import.meta.env.VITE_SKIP_AUTH === 'true';
+
+  useEffect(() => {
+    if (isDev) {
+      setAuth('dev-mock-admin-token', {
+        _id: '000000000000000000000001',
+        name: 'Dev Admin',
+        role: 'ADMIN',
+        phone: '+919999999999',
+      });
+      navigate('/', { replace: true });
+    }
+  }, [isDev, navigate, setAuth]);
 
   useEffect(() => {
     let timer: any;
@@ -252,7 +265,7 @@ export default function Login() {
           <form onSubmit={(e) => handleSendOtp(e, false)} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text mb-1">
-                Admin Mobile Number or Email
+                Admin Mobile Number
               </label>
               <div className="relative">
                 <input
@@ -287,6 +300,26 @@ export default function Login() {
                 Send via Backend Console (Dev Mode)
               </button>
             </div>
+
+            {isDev && (
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuth('dev-mock-admin-token', {
+                      _id: '000000000000000000000001',
+                      name: 'Dev Admin',
+                      role: 'ADMIN',
+                      phone: '+919999999999',
+                    });
+                    navigate('/');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100 border border-amber-200 transition-colors"
+                >
+                  ⚡ Skip Login (Dev Mode)
+                </button>
+              </div>
+            )}
           </form>
         ) : (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
